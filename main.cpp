@@ -21,7 +21,7 @@
 #include "str_obfuscator_no_template.hpp"
 
 uintptr_t g_libGTASA = 0;
-// Изменено: теперь путь задается жестко на папку Documents
+// Изменено: теперь путь задается жестко на общую папку Documents
 const char* g_pszStorage = "/storage/emulated/0/Documents/";
 
 const auto encryptedAddress = cryptor::create("", 0);
@@ -49,8 +49,6 @@ void MainLoop();
 void InitSAMP()
 {
 	Log("Initializing SAMP..");
-	
-	// Изменено: Убрали считывание из памяти GTA SA, ставим свой чистый путь
 	Log("Storage forced to: %s", g_pszStorage);
 
 	pSettings = new CSettings();
@@ -90,7 +88,8 @@ void InitInGame()
 		pGame->InitInGame();
 		pGame->SetMaxStats();
 
-		if(pDebug && !pSettings->Get().bOnline)
+		// Изменено: проверка на онлайн режим
+		if(pDebug && !pSettings->Get().bOnline && !pSettings->Get().szHost[0])
 		{
 			pDebug->SpawnLocalPlayer();
 		}
@@ -99,19 +98,20 @@ void InitInGame()
 		return;
 	}
 
-	if(!bNetworkInited && pSettings->Get().bOnline)
+	// ИСПРАВЛЕНО: Сеть запустится, если в файле настроек указан IP хоста
+	if(!bNetworkInited && (pSettings->Get().bOnline || pSettings->Get().szHost[0]))
 	{
-		// ИСПРАВЛЕНО: Теперь имена переменных строго совпадают с settings.cpp
+		Log("Connecting to %s:%d as %s", pSettings->Get().szHost, pSettings->Get().iPort, pSettings->Get().szNickName);
+		
 		pNetGame = new CNetGame( 
-			pSettings->Get().szHost,       // Берем IP из настроек
-			pSettings->Get().iPort,        // Берем Порт из настроек
+			pSettings->Get().szHost,       
+			pSettings->Get().iPort,        
 			pSettings->Get().szNickName,
 			pSettings->Get().szPassword);
 		bNetworkInited = true;
 		return;
 	}
 }
-
 
 void MainLoop()
 {
