@@ -101,17 +101,17 @@ void InitInGame()
 
 	if(!bNetworkInited && pSettings->Get().bOnline)
 	{
-		// ИЗМЕНЕНО: Игра больше не ломится на старый чужой IP!
-		// Теперь она берет host и port из файла settings.ini, который настроил лаунчер
+		// ИСПРАВЛЕНО: Теперь имена переменных строго совпадают с settings.cpp
 		pNetGame = new CNetGame( 
-			pSettings->Get().szConnectAddress, // Считываем IP из настроек
-			pSettings->Get().iConnectPort,     // Считываем Порт из настроек
+			pSettings->Get().szHost,       // Берем IP из настроек
+			pSettings->Get().iPort,        // Берем Порт из настроек
 			pSettings->Get().szNickName,
 			pSettings->Get().szPassword);
 		bNetworkInited = true;
 		return;
 	}
 }
+
 
 void MainLoop()
 {
