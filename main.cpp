@@ -21,7 +21,8 @@
 #include "str_obfuscator_no_template.hpp"
 
 uintptr_t g_libGTASA = 0;
-const char* g_pszStorage = nullptr;
+// Изменено: теперь путь задается жестко на папку Documents
+const char* g_pszStorage = "/storage/emulated/0/Documents/";
 
 const auto encryptedAddress = cryptor::create("", 0);
 unsigned short port = 0;
@@ -48,16 +49,9 @@ void MainLoop();
 void InitSAMP()
 {
 	Log("Initializing SAMP..");
-	g_pszStorage = (const char*)(g_libGTASA+0x63C4B8);
-
-	if(!g_pszStorage)
-	{
-		Log("Error: storage path not found!");
-		std::terminate();
-		return;
-	}
-
-	Log("Storage: %s", g_pszStorage);
+	
+	// Изменено: Убрали считывание из памяти GTA SA, ставим свой чистый путь
+	Log("Storage forced to: %s", g_pszStorage);
 
 	pSettings = new CSettings();
 
@@ -107,11 +101,11 @@ void InitInGame()
 
 	if(!bNetworkInited && pSettings->Get().bOnline)
 	{
-		// IP SERVIDOR
+		// ИЗМЕНЕНО: Игра больше не ломится на старый чужой IP!
+		// Теперь она берет host и port из файла settings.ini, который настроил лаунчер
 		pNetGame = new CNetGame( 
-		// Axwell World
-			"93.170.76.34",
-			7778,
+			pSettings->Get().szConnectAddress, // Считываем IP из настроек
+			pSettings->Get().iConnectPort,     // Считываем Порт из настроек
 			pSettings->Get().szNickName,
 			pSettings->Get().szPassword);
 		bNetworkInited = true;
